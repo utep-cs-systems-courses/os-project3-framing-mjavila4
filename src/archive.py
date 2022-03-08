@@ -1,3 +1,6 @@
 import os
 
-fd = os.open()
+file = open("textFile.txt", "w")
+
+file.write("Heod")
+
