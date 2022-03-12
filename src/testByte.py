@@ -1,5 +1,2 @@
-fileString = open("text.txt")
-
-hello = fileString.read()
-
-print(hello)
+poop = bytearray("hello", 'utf-8')
+print(poop.decode())
