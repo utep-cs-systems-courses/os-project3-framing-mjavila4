@@ -1,10 +1,12 @@
 #! /usr/bin/env python3
 
 
-import socket, sys, re, os, time
+import socket, sys, re, os, time, archiver
 
 sys.path.insert(0, '../lib')  # for params
 import params
+
+file_name = "test.txt"
 
 switchesVarDefaults = (
     (('-l', '--listenPort'), 'listenPort', 50001),
