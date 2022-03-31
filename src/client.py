@@ -2,7 +2,7 @@
 
 # Echo client program
 import socket, sys, re, time
-sys.path.insert("../lib")       # for params
+sys.path.insert(0, '../lib')       # for params
 import params
 
 switchesVarDefaults = (
