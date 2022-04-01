@@ -12,6 +12,8 @@ def pack(file_array):
         file_name_len = ((len(file_name)) + 1).to_bytes(NAME_BYTES, 'big')
         file_contents_len = (len(file_con) + 1).to_bytes(CON_BYTES, 'big')
         byte_array += bytearray(file_name_len + file_contents_len + (file_name + file_con).encode())
+        f.flush()
+        f.close()
 
     return byte_array
 
