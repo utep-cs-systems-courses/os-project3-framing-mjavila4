@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # Echo client program
-import socket, sys, re, time
+import socket, sys, re, time, archiver
 sys.path.insert(0, '../lib')       # for params
 import params
 
@@ -10,7 +10,6 @@ switchesVarDefaults = (
     (('-d', '--delay'), 'delay', "0"),
     (('-?', '--usage'), "usage", False), # boolean (set if present)
 )
-
 
 progname = "Client"
 paramMap = params.parseParams(switchesVarDefaults)
@@ -58,8 +57,9 @@ if delay != 0:
     print("done sleeping")
 
 while 1:
-    data = s.recv(1024).decode()
-    print("Received '%s'" % data)
+    data = s.recv(1024)
+    print("Received Data: {}".format(data))
+    rec_file_array = archiver.unpack(data)
     if len(data) == 0:
         break
 print("Zero length read.  Closing")
