@@ -11,6 +11,16 @@ switchesVarDefaults = (
     (('-?', '--usage'), "usage", False),  # boolean (set if present)
 )
 
+arch = archiver.Archiver()
+server_file1 = open('../file-lib/test.txt', 'r+')
+server_file2 = open("../file-lib/anna.txt", "r+")
+
+arch.add_file(server_file1)
+arch.add_file(server_file2)
+
+file_list = arch.get_file_list()
+
+
 progname = "Server"
 paramMap = params.parseParams(switchesVarDefaults)
 
@@ -28,23 +38,33 @@ s.listen(1)  # allow only one outstanding request
 # s is a factory for connected sockets
 
 
-def client_connection(files):
-    print('Connected by', addr)
-    packed_data = archiver.pack(files)
-    print("Server Sending {}".format(packed_data))
-    conn.send(packed_data)
-    conn.shutdown(socket.SHUT_WR)
+def client_connection(connection, address):
+    print('Connected by', address)
+
+    server_send(connection)
+    server_recv(connection)
+
+    connection.shutdown(socket.SHUT_WR)
+    connection.close()
 
 
-def get_files():
-    f_list = []
-    file1 = open('../file-lib/test.txt', 'r')
-    f_list.append(file1)
-    return f_list
+def server_send(connection):
+    packed_data = archiver.pack(file_list)
+    print("Server Sending: {}".format(packed_data))
+    while len(packed_data):
+        bytes_sent = connection.send(packed_data)
+        packed_data = packed_data[bytes_sent:]
+
+
+def server_recv(connection):
+    while 1:
+        data = connection.recv(1024)
+        if len(data) == 0:
+            break
+        print("Received Data: {}".format(data))
 
 
 while True:
     conn, addr = s.accept()  # wait until incoming connection request (and accept it)
-    file_list = get_files()
-    t = threading.Thread(target=client_connection(file_list))
+    t = threading.Thread(target=client_connection(conn, addr))
     t.start()
