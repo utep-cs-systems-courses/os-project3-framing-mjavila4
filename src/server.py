@@ -12,11 +12,13 @@ switchesVarDefaults = (
 )
 
 arch = archiver.Archiver()
-server_file1 = open('../file-lib/test.txt', 'r+')
-server_file2 = open("../file-lib/anna.txt", "r+")
+server_file1 = open('../file-lib/test.txt', 'rb')
+server_file2 = open("../file-lib/anna.txt", 'rb')
+server_file3 = open("../file-lib/rplace.jpg", 'rb')
 
 arch.add_file(server_file1)
 arch.add_file(server_file2)
+arch.add_file(server_file3)
 
 file_list = arch.get_file_list()
 

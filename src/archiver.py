@@ -1,6 +1,5 @@
 NAME_BYTES = 1
 CON_BYTES = 4
-ALLOC_BYTES = NAME_BYTES + CON_BYTES
 
 
 class Archiver:
@@ -25,39 +24,33 @@ def pack(file_array):
 
     for f in file_array:
         file_con = f.read()
-        file_name = get_file_name(f)
-        file_name_len = ((len(file_name)) + 1).to_bytes(NAME_BYTES, 'big')
-        file_contents_len = (len(file_con) + 1).to_bytes(CON_BYTES, 'big')
-        byte_array += bytearray(file_name_len + file_contents_len + (file_name + file_con).encode())
+        file_name = f.name.split('/')[-1].strip().encode()
+        file_con_len = len(file_con).to_bytes(CON_BYTES, 'big')
+        file_name_len = len(file_name).to_bytes(NAME_BYTES, 'big')
+        byte_array += bytearray(file_name_len + file_con_len + file_name + file_con)
         f.flush()
-        f.close()
+        f.seek(0)
 
     return byte_array
 
 
 def unpack(packet):
-    file_listt = []
+    f_list = []
 
     while packet:
-        file_name_byte_size = packet[0]
-        file_name = packet[ALLOC_BYTES:file_name_byte_size + ALLOC_BYTES - 1].decode('utf-8')
+        file_name_len = packet[0]
+        packet = packet[NAME_BYTES:]
+        file_con_len = int.from_bytes(packet[:CON_BYTES], 'big')
+        packet = packet[CON_BYTES:]
+        file_name = packet[:file_name_len].decode()
+        packet = packet[file_name_len:]
+        file_con = packet[:file_con_len]
+        packet = packet[file_con_len:]
 
-        file_con_byte_size = int.from_bytes(packet[1:5], 'big')
-        file_con_byte_size += file_name_byte_size + ALLOC_BYTES - 1
-
-        file_con = packet[file_name_byte_size + ALLOC_BYTES - 1:file_con_byte_size].decode('utf-8')
-        packet = packet[file_con_byte_size - 1:]
-
-        f = open(file_name, "w+")
+        f = open(file_name, "wb")
         f.write(file_con)
-        f.seek(0)
-        file_listt.append(f)
         f.flush()
-        f.close()
+        f.seek(0)
+        f_list.append(f)
 
-    return file_listt
-
-
-def get_file_name(file):
-    file_name = file.name.split('/')
-    return file_name[-1]
+    return f_list

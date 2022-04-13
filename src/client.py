@@ -70,12 +70,15 @@ def client_send():
 
 
 def client_recv():
+    data = s.recv(16384)
+    packet = data
     while 1:
-        data = s.recv(1024)
-        arch.add_file_list(archiver.unpack(data))
         if len(data) == 0:
+            arch.add_file_list(archiver.unpack(packet))
             break
-        print("Received Data: {}".format(data))
+        data = s.recv(16384)
+        packet += data
+        #print("Received Data: {}".format(data))
     s.close()
 
 
