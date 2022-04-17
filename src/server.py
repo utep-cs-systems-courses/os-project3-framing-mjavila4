@@ -22,7 +22,6 @@ arch.add_file(server_file1)
 
 file_list = arch.get_file_list()
 
-
 progname = "Server"
 paramMap = params.parseParams(switchesVarDefaults)
 
@@ -52,22 +51,22 @@ def client_connection(connection, address):
 
 def server_send(connection):
     packed_data = archiver.pack(file_list)
-    print("Server Sending: {}".format(packed_data[:100]))
+    print("Server Sending: {}".format(packed_data[:50]))
     while len(packed_data):
         bytes_sent = connection.send(packed_data)
         packed_data = packed_data[bytes_sent:]
 
 
 def server_recv(connection):
-    data = connection.recv(32768)
+    data = bytearray()
     packet = data
     while 1:
+        data = connection.recv(150000)
+        print("Received Data: {}".format(data[:50]))
         if len(data) == 0:
             arch.add_file_list(archiver.unpack(packet))
             break
-        data = connection.recv(32768)
         packet += data
-        print("Received Data: {}".format(data[:100]))
         print("Sleeping...")
         time.sleep(int(1))
 

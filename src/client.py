@@ -65,7 +65,7 @@ if delay != 0:
 
 def client_send():
     packed_data = archiver.pack(file_list)
-    print("Sending Data: {}".format(packed_data[:100]))
+    print("Client Sending: {}".format(packed_data[:50]))
     while len(packed_data):
         bytes_sent = s.send(packed_data)
         packed_data = packed_data[bytes_sent:]
@@ -74,15 +74,15 @@ def client_send():
 
 
 def client_recv():
-    data = s.recv(16384)
+    data = bytearray()
     packet = data
     while 1:
+        data = s.recv(200000)
+        print("Received Data: {}".format(data[:50]))
         if len(data) == 0:
             arch.add_file_list(archiver.unpack(packet))
             break
-        data = s.recv(16384)
         packet += data
-        print("Received Data: {}".format(data[:100]))
     s.close()
 
 
