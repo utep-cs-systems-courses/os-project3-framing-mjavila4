@@ -14,7 +14,11 @@ switchesVarDefaults = (
 
 progname = "Client"
 paramMap = params.parseParams(switchesVarDefaults)
+
 arch = archiver.Archiver()
+client_file1 = open('../file-lib/space.jpg', 'rb')
+arch.add_file(client_file1)
+file_list = arch.get_file_list()
 
 server, usage = paramMap["server"], paramMap["usage"]
 
@@ -60,11 +64,11 @@ if delay != 0:
 
 
 def client_send():
-    test_data = "Test Data".encode()
-    while len(test_data):
-        print("Sending Data: {}".format(test_data))
-        bytes_sent = s.send(test_data)
-        test_data = test_data[bytes_sent:]
+    packed_data = archiver.pack(file_list)
+    print("Sending Data: {}".format(packed_data[:100]))
+    while len(packed_data):
+        bytes_sent = s.send(packed_data)
+        packed_data = packed_data[bytes_sent:]
 
     s.shutdown(socket.SHUT_WR)
 
@@ -78,10 +82,11 @@ def client_recv():
             break
         data = s.recv(16384)
         packet += data
-        #print("Received Data: {}".format(data))
+        print("Received Data: {}".format(data[:100]))
     s.close()
 
 
 client_send()
 client_recv()
 print(arch.get_file_list())
+print(arch.get_file_name_list())

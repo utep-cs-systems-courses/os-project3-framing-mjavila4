@@ -4,9 +4,11 @@ CON_BYTES = 4
 
 class Archiver:
     file_list = []
+    file_name_list = []
 
     def add_file(self, file):
         self.file_list.append(file)
+        self.file_name_list.append(get_file_name(self, file))
 
     def add_file_list(self, f_list):
         for f in f_list:
@@ -17,6 +19,9 @@ class Archiver:
 
     def get_file_list(self):
         return self.file_list
+
+    def get_file_name_list(self):
+        return self.file_name_list
 
 
 def pack(file_array):
@@ -54,3 +59,22 @@ def unpack(packet):
         f_list.append(f)
 
     return f_list
+
+
+def parse_names(packet):
+    name_list = []
+
+    while packet:
+        file_name_len = packet[0]
+        packet = packet[NAME_BYTES:]
+        file_con_len = int.from_bytes(packet[:CON_BYTES], 'big')
+        packet = packet[CON_BYTES:]
+        name_list.append(packet[:file_name_len].decode())
+        packet = packet[file_name_len:]
+        packet = packet[file_con_len:]
+
+    return name_list
+
+
+def get_file_name(self, f):
+    return f.name.split('/')[-1].strip()

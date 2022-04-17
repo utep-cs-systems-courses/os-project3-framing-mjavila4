@@ -13,12 +13,12 @@ switchesVarDefaults = (
 
 arch = archiver.Archiver()
 server_file1 = open('../file-lib/test.txt', 'rb')
-server_file2 = open("../file-lib/anna.txt", 'rb')
-server_file3 = open("../file-lib/rplace.jpg", 'rb')
+#server_file2 = open("../file-lib/anna.txt", 'rb')
+#server_file3 = open("../file-lib/rplace.jpg", 'rb')
 
 arch.add_file(server_file1)
-arch.add_file(server_file2)
-arch.add_file(server_file3)
+#arch.add_file(server_file2)
+#arch.add_file(server_file3)
 
 file_list = arch.get_file_list()
 
@@ -52,21 +52,28 @@ def client_connection(connection, address):
 
 def server_send(connection):
     packed_data = archiver.pack(file_list)
-    print("Server Sending: {}".format(packed_data))
+    print("Server Sending: {}".format(packed_data[:100]))
     while len(packed_data):
         bytes_sent = connection.send(packed_data)
         packed_data = packed_data[bytes_sent:]
 
 
 def server_recv(connection):
+    data = connection.recv(32768)
+    packet = data
     while 1:
-        data = connection.recv(1024)
         if len(data) == 0:
+            arch.add_file_list(archiver.unpack(packet))
             break
-        print("Received Data: {}".format(data))
+        data = connection.recv(32768)
+        packet += data
+        print("Received Data: {}".format(data[:100]))
+        print("Sleeping...")
+        time.sleep(int(1))
 
 
 while True:
     conn, addr = s.accept()  # wait until incoming connection request (and accept it)
     t = threading.Thread(target=client_connection(conn, addr))
     t.start()
+    print(arch.get_file_list())
