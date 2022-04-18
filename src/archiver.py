@@ -6,13 +6,21 @@ class Archiver:
     file_list = []
     file_name_list = []
 
+    def file_name_check(self, file_name):
+        if file_name in self.get_file_name_list():
+            return True
+        return False
+
     def add_file(self, file):
         self.file_list.append(file)
-        self.file_name_list.append(get_file_name(self, file))
+        # self.file_name_list.append(get_file_name(self, file))
 
     def add_file_list(self, f_list):
         for f in f_list:
             self.add_file(f)
+            
+    def add_file_name_list(self, file_name):
+        self.file_name_list.append(file_name)
 
     def set_file_list(self, fl):
         self.file_list = fl
@@ -52,7 +60,7 @@ def unpack(packet):
         file_con = packet[:file_con_len]
         packet = packet[file_con_len:]
 
-        f = open(file_name, "wb")
+        f = open(file_name, "w+b")
         f.write(file_con)
         f.flush()
         f.seek(0)

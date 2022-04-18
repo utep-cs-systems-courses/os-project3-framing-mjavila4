@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 
-import socket, sys, re, os, time, archiver, threading
+import socket, sys, re, os, time, archiver, threading, stream_reader
 
 sys.path.insert(0, '../lib')  # for params
 import params
@@ -13,12 +13,8 @@ switchesVarDefaults = (
 
 arch = archiver.Archiver()
 server_file1 = open('../file-lib/test.txt', 'rb')
-#server_file2 = open("../file-lib/anna.txt", 'rb')
-#server_file3 = open("../file-lib/rplace.jpg", 'rb')
 
 arch.add_file(server_file1)
-#arch.add_file(server_file2)
-#arch.add_file(server_file3)
 
 file_list = arch.get_file_list()
 
@@ -60,8 +56,15 @@ def server_send(connection):
 def server_recv(connection):
     data = bytearray()
     packet = data
+    sr = stream_reader.StreamReader()
     while 1:
-        data = connection.recv(150000)
+        data = connection.recv(100000)
+        file_name = sr.listen(data)
+        if file_name != 0:
+            for f in file_name:
+                if arch.file_name_check(f):
+                    return
+                arch.add_file_name_list(f)
         print("Received Data: {}".format(data[:50]))
         if len(data) == 0:
             arch.add_file_list(archiver.unpack(packet))
@@ -76,3 +79,4 @@ while True:
     t = threading.Thread(target=client_connection(conn, addr))
     t.start()
     print(arch.get_file_list())
+    print(arch.get_file_name_list())
